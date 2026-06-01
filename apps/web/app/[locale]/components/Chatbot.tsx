@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { MessageSquare, X, Send, Bot } from "lucide-react";
 import { getChatbotPanelClasses, getChatbotPositionClasses } from "./chatbotPosition";
@@ -13,12 +14,10 @@ type Message = {
 
 export default function Chatbot() {
     const pathname = usePathname();
+    const t = useTranslations("chatbot");
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        {
-            text: "Hi! I am the SahiDawa AI Assistant. How can I help you with your medicines today?",
-            isBot: true,
-        },
+        { text: t("welcome"), isBot: true },
     ]);
     const [input, setInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -94,8 +93,8 @@ export default function Chatbot() {
                                 <Bot size={20} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold">SahiDawa AI</h3>
-                                <p className="text-xs text-white/80">Online</p>
+                                <h3 className="text-sm font-bold">{t("title")}</h3>
+                                <p className="text-xs text-white/80">{t("status")}</p>
                             </div>
                         </div>
                         <button
@@ -130,7 +129,7 @@ export default function Chatbot() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                            placeholder="Ask me about a medicine..."
+                            placeholder={t("placeholder")}
                             className="flex-1 rounded-full bg-(--color-surface-muted) px-4 py-3 text-sm text-(--color-text-primary) transition-all placeholder:text-(--color-text-muted) focus:ring-2 focus:ring-green-500/50 focus:outline-none"
                         />
                         <button
