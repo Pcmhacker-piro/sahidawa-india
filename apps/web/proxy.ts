@@ -16,10 +16,10 @@ export default async function middleware(req: NextRequest) {
                 return req.cookies.getAll();
             },
             setAll(cookiesToSet) {
-                cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-                cookiesToSet.forEach(({ name, value, options }) =>
-                    res.cookies.set(name, value, options)
-                );
+                // Apply cookies only to the response; request cookies are immutable in middleware.
+                cookiesToSet.forEach(({ name, value, options }) => {
+                    res.cookies.set(name, value, options);
+                });
             },
         },
     });
