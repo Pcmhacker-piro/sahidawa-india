@@ -96,6 +96,7 @@ export default function HowItWorksPage() {
 
             {/* Timeline Section */}
             <section className="px-6 py-10">
+                <h2 className="sr-only">How It Works Steps</h2>
                 <div className="mx-auto max-w-6xl">
                     <div className="no-scrollbar flex snap-x snap-mandatory flex-row gap-4 overflow-x-auto pb-4 md:flex-row md:items-stretch md:gap-10 md:overflow-x-visible md:pb-0">
                         {[
