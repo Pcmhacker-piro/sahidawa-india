@@ -15,6 +15,7 @@ import "./globals.css";
 import "../../src/styles/print.css";
 import { Toaster } from "sonner";
 import Footer from "./components/Footer";
+import { AuthSync } from "@/src/components/AuthSync";
 
 export async function generateMetadata({
     params,
@@ -99,11 +100,11 @@ export default async function LocaleLayout({
                     }}
                 />
             </head>
-            {/* REPLACE YOUR OLD BODY TAG WITH THIS ONE: */}
             <body className="flex min-h-screen flex-col bg-(--color-surface-page) text-(--color-text-primary) transition-colors duration-300">
                 <ServiceWorkerProvider>
                     <ThemeProvider>
                         <NextIntlClientProvider messages={messages}>
+                            <AuthSync />
                             <OfflineBanner />
                             <Navbar />
                             <main className="flex flex-grow flex-col">
