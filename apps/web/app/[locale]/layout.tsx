@@ -85,7 +85,7 @@ export default async function LocaleLayout({
     const isRtl = ['ur', 'ks'].includes(locale);
 
     return (
-        <html lang={locale} suppressHydrationWarning>
+        <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
             <head>
                 <script
                     dangerouslySetInnerHTML={{
