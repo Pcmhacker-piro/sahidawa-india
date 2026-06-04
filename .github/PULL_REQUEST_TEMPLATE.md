@@ -1,6 +1,10 @@
-### 🛑 STOP: Assignment Check
+### 🛑 STOP: Assignment & File Scope Check
 
 - [ ] I am officially assigned to the issue this PR fixes.
+- [ ] I have verified that my PR **ONLY** touches the files required for this issue. I have **NOT** used `git add .` blindly to include unrelated files or formatting changes.
+
+> [!WARNING]
+> **If your PR includes unrelated files (e.g., 15 files changed for a simple bug fix), it will not be reviewed and may be closed. Please revert unrelated files before requesting a review.**
 
 _(Warning: If you are not assigned, this PR will be immediately closed without review to prevent duplicate work)._
 
@@ -71,6 +75,7 @@ Closes #
 <!-- Ensure you have completed the following steps before requesting a review. Replace [ ] with [x]. -->
 
 - [ ] My PR has a linked issue (see above)
+- [ ] I have verified the "Files Changed" tab in this PR. It ONLY contains files related to my issue.
 - [ ] I have pulled the latest `main` and rebased/merged before opening this PR
 - [ ] My code follows the patterns and conventions in `docs/code-guide.md`
 - [ ] I ran the project locally and verified there are no compile/build errors
