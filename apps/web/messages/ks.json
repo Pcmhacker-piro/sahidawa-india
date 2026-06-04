@@ -353,9 +353,18 @@
         "quick_actions": "فcurrent کٲم",
         "footer": "صِرَف مَعلوٗمات خٲطرِ • ڈاکٹرَس سٲتؠ مَشورہِ کَریو",
         "actions": {
-            "scan": { "label": "دَوا سکین کَریو", "description": "اَصلیَت تصدیق کَریو" },
-            "symptoms": { "label": "علامت چیک کَریو", "description": "اے آئی مَدَدگار رَہنُمٲیی" },
-            "pharmacy": { "label": "میڈیکل سٹور لَبِیو", "description": "تصدیق شُدہ دُکان" }
+            "scan": {
+                "label": "دَوا سکین کَریو",
+                "description": "اَصلیَت تصدیق کَریو"
+            },
+            "symptoms": {
+                "label": "علامت چیک کَریو",
+                "description": "اے آئی مَدَدگار رَہنُمٲیی"
+            },
+            "pharmacy": {
+                "label": "میڈیکل سٹور لَبِیو",
+                "description": "تصدیق شُدہ دُکان"
+            }
         }
     },
     "chatbot": {
@@ -363,5 +372,62 @@
         "status": "آن لائن",
         "welcome": "خوش آمدید! بِہ چُھس صحیح دَوا اے آئی مَدَدگار۔ اَز کیا دَواہَن مُتلِق مَدَد کَرو؟",
         "placeholder": "دَوا مُتلِق پُچھِیو..."
+    },
+    "Alerts": {
+        "backHome": "Back to Home Page",
+        "badge": "Live Alerts",
+        "title": "Live CDSCO Alerts",
+        "subtitle": "Complete historical safety logging stream directly mapped to the master CDSCO registry.",
+        "regionBadge": "India Region",
+        "totalCount": "Total Count: {count}",
+        "brandPlaceholder": "Search by Brand Name...",
+        "regionPlaceholder": "Filter by State/District...",
+        "error": "Database synchronization error encountered while fetching active logs.",
+        "loading": "Loading alerts...",
+        "systemUpdate": "System Update",
+        "alertType": "Alert: {type}",
+        "noDetails": "No details available",
+        "batchLabel": "Batch:",
+        "manufacturerLabel": "Manufacturer:",
+        "regionLabel": "Region:",
+        "empty": "No health alerts matching your criteria were found.",
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "Compare": {
+        "pageTitle": "Compare medicines",
+        "pageSubtitle": "Brand vs generic side by side",
+        "firstMedicine": "First medicine",
+        "secondMedicine": "Second medicine",
+        "searchPlaceholder": "Search brand or generic name",
+        "findPharmacies": "Find pharmacies",
+        "emptyComparison": "Select two medicines above to see the comparison.",
+        "fieldHeader": "Field",
+        "medicineA": "Medicine A",
+        "medicineB": "Medicine B",
+        "priceUnavailable": "Price unavailable",
+        "noSavings": "No savings",
+        "saveAmount": "Save ₹{amount} ({percent}%)",
+        "rows": {
+            "brandName": "Brand name",
+            "genericName": "Generic name",
+            "composition": "Composition",
+            "manufacturer": "Manufacturer",
+            "type": "Type",
+            "cdscoStatus": "CDSCO status",
+            "expiryDate": "Expiry date",
+            "marketPrice": "Market price (MRP)",
+            "janAushadhiPrice": "Jan Aushadhi price",
+            "savings": "Savings vs MRP"
+        },
+        "medicineTypes": {
+            "brand": "Brand",
+            "generic": "Generic"
+        },
+        "status": {
+            "approved": "Approved",
+            "recalled": "Recalled",
+            "banned": "Banned"
+        }
     }
 }
