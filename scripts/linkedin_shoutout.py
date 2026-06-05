@@ -380,11 +380,21 @@ def send_to_make_webhook(post_text: str, pr: dict) -> None:
     labels = pr["labels"].lower()
     tier = "level:critical" if "level:critical" in labels else "level:advanced"
 
+    import urllib.parse
+    
+    # Generate a dynamic Thank You banner image URL
+    banner_text = f"Huge thanks to **{pr['author']}** for their contribution to SahiDawa! 🚀 #GSSoC2026"
+    encoded_text = urllib.parse.quote(banner_text)
+    image_url = f"https://og-image.vercel.app/{encoded_text}.png?theme=dark&md=1&fontSize=75px"
+    if pr.get("author_avatar"):
+        image_url += f"&images={urllib.parse.quote(pr['author_avatar'])}"
+
     payload = {
         "post_text": post_text,
         "pr_title": pr["title"],
         "pr_author": pr["author"],
         "author_avatar": pr.get("author_avatar", ""),
+        "image_url": image_url,
         "pr_url": pr["url"],
         "pr_number": pr["number"],
         "tier": tier,
