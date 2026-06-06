@@ -1,9 +1,11 @@
 import io
 import os
 import sys
+import wave
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 from fastapi.testclient import TestClient
 from starlette.routing import _DefaultLifespan
 
@@ -46,12 +48,23 @@ def setup_successful_audio_pipeline(monkeypatch):
     return dummy_transcriber
 
 
+def _make_silent_wav_bytes(duration_seconds: float = 0.5, sample_rate: int = 8000) -> bytes:
+    buffer = io.BytesIO()
+    frame_count = int(duration_seconds * sample_rate)
+    with wave.open(buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(sample_rate)
+        wav_file.writeframes(b"\x00\x00" * frame_count)
+    return buffer.getvalue()
+
+
 def test_language_hint_is_normalized_and_passed_to_whisper(monkeypatch):
     dummy_transcriber = setup_successful_audio_pipeline(monkeypatch)
 
     response = client.post(
         "/asr/transcribe",
-        files={"file": ("voice.wav", io.BytesIO(b"fake-audio"), "audio/wav")},
+        files={"file": ("voice.wav", _make_silent_wav_bytes(), "audio/wav")},
         data={"language": "ta-IN"},
     )
 
@@ -64,7 +77,7 @@ def test_missing_language_hint_keeps_auto_detection(monkeypatch):
 
     response = client.post(
         "/asr/transcribe",
-        files={"file": ("voice.wav", io.BytesIO(b"fake-audio"), "audio/wav")},
+        files={"file": ("voice.wav", _make_silent_wav_bytes(), "audio/wav")},
     )
 
     assert response.status_code == 200
@@ -72,6 +85,9 @@ def test_missing_language_hint_keeps_auto_detection(monkeypatch):
 
 
 def test_get_model_uses_environment_driven_settings(monkeypatch):
+    from conftest import _original_get_model
+    monkeypatch.setattr(asr, "get_model", _original_get_model)
+
     captured = {}
 
     def fake_whisper_model(model_size, device, compute_type):
