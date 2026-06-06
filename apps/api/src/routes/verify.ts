@@ -155,10 +155,7 @@ router.post(
 
         const { batchNumber, latitude, longitude } = parsed.data;
 
-        const escaped = batchNumber
-            .replace(/\\/g, "\\\\")
-            .replace(/%/g, "\\%")
-            .replace(/_/g, "\\_");
+        const escaped = escapeIlike(batchNumber);
 
         try {
             const { data, error } = await supabase
