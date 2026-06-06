@@ -15,7 +15,6 @@ from routers import asr
 
 _original_get_model = asr.get_model
 
-
 client = TestClient(app)
 
 
@@ -29,6 +28,17 @@ class DummyTranscriber:
             language="ta",
             language_probability=0.93,
         )
+
+
+def _make_silent_wav_bytes(duration_seconds: float = 0.5, sample_rate: int = 8000) -> bytes:
+    buffer = io.BytesIO()
+    frame_count = int(duration_seconds * sample_rate)
+    with wave.open(buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(sample_rate)
+        wav_file.writeframes(b"\x00\x00" * frame_count)
+    return buffer.getvalue()
 
 
 def setup_successful_audio_pipeline(monkeypatch):
@@ -48,17 +58,6 @@ def setup_successful_audio_pipeline(monkeypatch):
     monkeypatch.setattr(asr.nr, "reduce_noise", lambda y, sr: y)
 
     return dummy_transcriber
-
-
-def _make_silent_wav_bytes(duration_seconds: float = 0.5, sample_rate: int = 8000) -> bytes:
-    buffer = io.BytesIO()
-    frame_count = int(duration_seconds * sample_rate)
-    with wave.open(buffer, "wb") as wav_file:
-        wav_file.setnchannels(1)
-        wav_file.setsampwidth(2)
-        wav_file.setframerate(sample_rate)
-        wav_file.writeframes(b"\x00\x00" * frame_count)
-    return buffer.getvalue()
 
 
 def test_language_hint_is_normalized_and_passed_to_whisper(monkeypatch):

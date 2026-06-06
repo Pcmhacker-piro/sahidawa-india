@@ -14,8 +14,8 @@ sys.modules["noisereduce"] = types.SimpleNamespace(reduce_noise=lambda y, sr: y)
 sys.modules["faster_whisper"] = types.SimpleNamespace(WhisperModel=object)
 
 sys.modules["soundfile"] = types.SimpleNamespace(
-        read=lambda _path: (_ for _ in ()).throw(RuntimeError("stubbed"))
-    )
+    read=lambda _path: (_ for _ in ()).throw(RuntimeError("stubbed"))
+)
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 

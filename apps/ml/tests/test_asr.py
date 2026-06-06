@@ -33,7 +33,6 @@ def _mock_asr_model(monkeypatch):
     monkeypatch.setattr(asr_router, "get_model", lambda: _MockWhisperModel())
 
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def make_silent_wav(duration_seconds: int = 2, sample_rate: int = 16000) -> bytes:
