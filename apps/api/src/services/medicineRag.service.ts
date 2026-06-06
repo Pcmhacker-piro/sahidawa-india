@@ -1,6 +1,7 @@
 import { z } from "zod";
 import supabase from "../db/supabase";
 import logger from "../utils/logger";
+import { escapeIlike } from "../utils/db";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
