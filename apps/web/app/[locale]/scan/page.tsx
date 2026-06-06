@@ -1126,7 +1126,7 @@ export default function ScanPage() {
             />
 
             <PageHeader
-                title="Scanner Mode"
+                title="Scan Medicine"
                 subtitle="Position the Barcode"
                 backHref="/"
                 variant="light"
