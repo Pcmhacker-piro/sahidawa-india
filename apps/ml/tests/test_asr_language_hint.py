@@ -13,6 +13,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from main import app
 from routers import asr
 
+_original_get_model = asr.get_model
+
 
 client = TestClient(app)
 
@@ -85,7 +87,6 @@ def test_missing_language_hint_keeps_auto_detection(monkeypatch):
 
 
 def test_get_model_uses_environment_driven_settings(monkeypatch):
-    from conftest import _original_get_model
     monkeypatch.setattr(asr, "get_model", _original_get_model)
 
     captured = {}
