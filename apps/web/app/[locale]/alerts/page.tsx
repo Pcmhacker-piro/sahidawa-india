@@ -7,6 +7,7 @@ import { Globe } from "lucide-react";
 import RecallPushSubscriber from "@/components/alerts/RecallPushSubscriber";
 import { LiveMessage } from "@/components/ui/LiveMessage";
 import { API_BASE } from "@/lib/api";
+import BackToTopButton from "@/app/[locale]/components/BackToTopButton";
 
 function formatRelativeTime(dateString: string | null): string {
     if (!dateString) return "Recent";
@@ -303,5 +304,6 @@ export default function FullAlertsLogPage() {
                 </button>
             </div>
         </div>
+            <BackToTopButton />
     );
 }
