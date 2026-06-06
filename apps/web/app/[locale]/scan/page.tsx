@@ -613,7 +613,8 @@ export default function ScanPage() {
         unknownManufacturer: tScan("share.unknown_manufacturer"),
     };
 
-    const processVerificationResult = async (result: VerifyResult, fallbackBrandName?: string) => {
+    const processVerificationResult = useCallback(
+        async (result: VerifyResult, fallbackBrandName?: string) => {
         if (!result.verified) {
             setVerifyResult(result);
             setShowResult(true);
@@ -641,7 +642,9 @@ export default function ScanPage() {
             setVerifyResult(result);
             setShowResult(true);
         }
-    };
+    },
+        []
+    );
 
     const handleConfirmScanned = () => {
         if (pendingVerifyResult) {
@@ -1029,12 +1032,15 @@ export default function ScanPage() {
             input?.focus();
         }, 300);
     }, []);
-    const handleBarcodeScan = async (scannedText: string) => {
+    const handleBarcodeScan = useCallback(
+        async (scannedText: string) => {
         setIsVerifying(true);
         setApiError(null);
         await handleVerify(scannedText);
         setIsVerifying(false);
-    };
+    },
+        [handleVerify]
+    );
 
     const handleScanAgain = async () => {
         if (ocrWorkerRef.current) {
