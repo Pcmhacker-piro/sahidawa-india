@@ -1093,7 +1093,7 @@ export default function ScanPage() {
             input?.focus();
         }, 300);
     }, []);
-    const handleBarcodeScan = useCallback(async (scannedText: string) => {
+    const handleBarcodeScan = async (scannedText: string) => {
         setIsVerifying(true);
         setApiError(null);
 
@@ -1103,9 +1103,8 @@ export default function ScanPage() {
             setApiError(error.message || "Failed to verify medicine with CDSCO.");
         } finally {
             setIsVerifying(false);
-        },
-        [handleVerify]
-    );
+        }
+    };
 
     const handleScanAgain = async () => {
         if (ocrWorkerRef.current) {
