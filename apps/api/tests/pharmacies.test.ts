@@ -10,6 +10,7 @@ jest.mock("../src/db/client", () => ({
         ilike: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         maybeSingle: jest.fn(),
+        rpc: jest.fn().mockReturnThis(),
     },
 }));
 
