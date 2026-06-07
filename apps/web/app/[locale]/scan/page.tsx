@@ -1093,7 +1093,7 @@ export default function ScanPage() {
             input?.focus();
         }, 300);
     }, []);
-    const handleBarcodeScan = async (scannedText: string) => {
+    const handleBarcodeScan = useCallback(async (scannedText: string) => {
         setIsVerifying(true);
         setApiError(null);
 
