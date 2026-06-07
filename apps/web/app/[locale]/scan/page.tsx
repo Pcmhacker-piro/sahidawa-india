@@ -59,8 +59,6 @@ type ScanHistoryContext = Omit<
 
 import { saveScanHistory } from "@/lib/db/scanHistory";
 
-import { structuredLog } from "@/lib/structuredLogger";
-
 function formatExpiryForBadge(isoDate: string | null | undefined): string | undefined {
     if (!isoDate) return undefined;
     const d = new Date(isoDate);
