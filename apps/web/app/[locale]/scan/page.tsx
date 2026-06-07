@@ -584,6 +584,41 @@ export default function ScanPage() {
         unknownManufacturer: tScan("share.unknown_manufacturer"),
     };
 
+    const recordScanHistory = useCallback(
+        ({
+            result,
+            errorMessage,
+            ...context
+        }: ScanHistoryContext & {
+            result?: VerifyResult;
+            errorMessage?: string;
+        }) => {
+            const query =
+                context.query.trim() ||
+                context.fallbackBatchNumber ||
+                context.fallbackBrandName ||
+                "Uploaded photo";
+            const entry = buildLocalScanHistoryEntry({
+                ...context,
+                query,
+                result,
+                errorMessage,
+            });
+
+            void saveLocalScanHistoryEntry(entry).catch((error) => {
+                structuredLog({
+                    log_level: "warn",
+                    route: "/scan",
+                    meta: {
+                        message: "[scan] Failed to save local scan history",
+                        error: error instanceof Error ? error.message : String(error),
+                    },
+                });
+            });
+        },
+        []
+    );
+
     const processVerificationResult = async (result: VerifyResult, fallbackBrandName?: string) => {
         if (!result.verified) {
             setVerifyResult(result);
