@@ -1,6 +1,6 @@
 import logger from "../utils/logger";
 
-export const CONNECTION_TIMEOUT_MS = 2_000;
+export const FETCH_TIMEOUT_MS = 15_000;
 export const MAX_RETRIES = 3;
 export const RETRY_DELAY_MS = 500;
 
@@ -9,13 +9,13 @@ export async function fetchWithTimeout(
     init?: RequestInit
 ): Promise<Response> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), CONNECTION_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     try {
         return await fetch(input, { ...init, signal: controller.signal });
     } catch (err) {
         if ((err as Error).name === "AbortError") {
-            throw new Error(`Supabase request timed out after ${CONNECTION_TIMEOUT_MS}ms`);
+            throw new Error(`Supabase request timed out after ${FETCH_TIMEOUT_MS}ms`);
         }
         throw err;
     } finally {
