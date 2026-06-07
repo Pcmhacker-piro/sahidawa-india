@@ -16,12 +16,17 @@ const mockChain = {
     single: jest.fn(),
 };
 
-jest.mock("../src/db/client", () => ({
-    supabase: {
-        from: jest.fn().mockReturnValue(mockChain),
-        rpc: jest.fn().mockReturnValue(mockChain),
-    },
-}));
+let mockClientRpc: jest.Mock;
+
+jest.mock("../src/db/client", () => {
+    mockClientRpc = jest.fn();
+    return {
+        supabase: {
+            from: jest.fn().mockReturnValue(mockChain),
+            rpc: mockClientRpc as jest.Mock,
+        },
+    };
+});
 
 jest.mock("../src/db/supabase", () => ({
     __esModule: true,
@@ -78,7 +83,7 @@ describe("GET /api/pharmacies/nearest", () => {
     // ── PostGIS RPC happy path tests ─────────────────────────────────────
 
     it("returns pharmacies from PostGIS RPC when available", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [
                 {
                     id: "11111111-1111-1111-1111-111111111111",
@@ -124,14 +129,14 @@ describe("GET /api/pharmacies/nearest", () => {
     });
 
     it("passes search_radius_km to the PostGIS RPC call", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [],
             error: null,
         } as never);
 
         await request(app).get("/api/pharmacies/nearest?lat=28.6304&lng=77.2177&radius=25");
 
-        expect(mockedSupabase.rpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
+        expect(mockClientRpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
             query_lat: 28.6304,
             query_lng: 77.2177,
             search_radius_km: 25,
@@ -139,14 +144,14 @@ describe("GET /api/pharmacies/nearest", () => {
     });
 
     it("uses default radius of 50 km when not specified", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [],
             error: null,
         } as never);
 
         await request(app).get("/api/pharmacies/nearest?lat=28.6304&lng=77.2177");
 
-        expect(mockedSupabase.rpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
+        expect(mockClientRpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
             query_lat: 28.6304,
             query_lng: 77.2177,
             search_radius_km: 50,
@@ -154,7 +159,7 @@ describe("GET /api/pharmacies/nearest", () => {
     });
 
     it("returns empty array when no pharmacies are within radius", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [],
             error: null,
         } as never);
@@ -166,7 +171,7 @@ describe("GET /api/pharmacies/nearest", () => {
     });
 
     it("does not expose rawDistance in the response", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [
                 {
                     id: "11111111-1111-1111-1111-111111111111",
@@ -194,7 +199,7 @@ describe("GET /api/pharmacies/nearest", () => {
     // ── Haversine fallback tests ─────────────────────────────────────────
 
     it("falls back to Haversine distance filtering and sorts nearby pharmacies", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: null,
             error: { message: "RPC unavailable" },
         } as never);
@@ -249,7 +254,7 @@ describe("GET /api/pharmacies/nearest", () => {
 
         expect(response.status).toBe(200);
 
-        expect(mockedSupabase.rpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
+        expect(mockClientRpc).toHaveBeenCalledWith("get_nearest_pharmacies", {
             query_lat: 12.9716,
             query_lng: 77.5946,
             search_radius_km: 10,
@@ -307,7 +312,7 @@ describe("GET /api/pharmacies/in-bounds", () => {
     });
 
     it("returns pharmacies from PostGIS bounds RPC when available", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: [
                 {
                     id: "11111111-1111-1111-1111-111111111111",
@@ -334,7 +339,7 @@ describe("GET /api/pharmacies/in-bounds", () => {
         expect(response.body.pharmacies[0].name).toBe("PMBJAK - AIIMS");
         expect(response.body.pharmacies[0].distance).toBe("3.5 km");
 
-        expect(mockedSupabase.rpc).toHaveBeenCalledWith("get_pharmacies_in_bounds", {
+        expect(mockClientRpc).toHaveBeenCalledWith("get_pharmacies_in_bounds", {
             bound_south: 28.5,
             bound_west: 77.0,
             bound_north: 28.8,
@@ -345,7 +350,7 @@ describe("GET /api/pharmacies/in-bounds", () => {
     });
 
     it("falls back to in-memory filter when bounds RPC is unavailable", async () => {
-        mockedSupabase.rpc.mockResolvedValueOnce({
+        mockClientRpc.mockResolvedValueOnce({
             data: null,
             error: { message: "RPC unavailable" },
         } as never);
