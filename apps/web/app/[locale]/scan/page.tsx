@@ -689,11 +689,7 @@ export default function ScanPage() {
             const brandRes = await verifyMedicineByBrand(conflictName, controller.signal);
             if (!isMountedRef.current || controller.signal.aborted) return;
             setParsedBrand(conflictName);
-            await processVerificationResult(brandRes, conflictName, {
-                query: conflictName,
-                source: "manual",
-                fallbackBrandName: conflictName,
-            });
+            await processVerificationResult(brandRes, conflictName);
         } catch (err) {
             if (!isMountedRef.current || controller.signal.aborted) return;
             const errorMsg = err instanceof Error ? err.message : "Verification failed";
@@ -737,11 +733,7 @@ export default function ScanPage() {
             try {
                 const result = await verifyMedicine(normalizedBatch, controller.signal);
                 if (!isMountedRef.current || controller.signal.aborted) return;
-                await processVerificationResult(result, undefined, {
-                    query: normalizedBatch,
-                    source,
-                    fallbackBatchNumber: normalizedBatch,
-                });
+                await processVerificationResult(result, undefined);
             } catch (err) {
                 if (!isMountedRef.current || controller.signal.aborted) return;
                 const errorMsg = err instanceof Error ? err.message : "Verification failed";
@@ -1004,14 +996,7 @@ export default function ScanPage() {
                 }
                 await processVerificationResult(
                     { verified: true, medicine: updatedMedicine },
-                    parsedBrand,
-                    {
-                        query: parsedBatchNum || medName || "Uploaded photo",
-                        source: "photo",
-                        fallbackBrandName: parsedBrand || medName || undefined,
-                        fallbackBatchNumber: parsedBatchNum || undefined,
-                        fallbackExpiryDate: parsedExpiryStr ? expiryToIso(parsedExpiryStr) : null,
-                    }
+                    parsedBrand
                 );
             } else {
                 const unverifiedResult =
