@@ -3,14 +3,23 @@ process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "test-anon-key"
 
 (global as any).WebSocket = (global as any).WebSocket || class {};
 
+const mockChain = {
+    select: jest.fn().mockReturnThis(),
+    ilike: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    gte: jest.fn().mockReturnThis(),
+    lte: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    range: jest.fn().mockReturnThis(),
+    maybeSingle: jest.fn(),
+    single: jest.fn(),
+};
+
 jest.mock("../src/db/client", () => ({
     supabase: {
-        from: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        ilike: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        maybeSingle: jest.fn(),
-        rpc: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnValue(mockChain),
+        rpc: jest.fn().mockReturnValue(mockChain),
     },
 }));
 
