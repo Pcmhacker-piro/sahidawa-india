@@ -3,6 +3,14 @@ process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "test-anon-key"
 
 (global as any).WebSocket = (global as any).WebSocket || class {};
 
+jest.mock("../src/middleware/auth", () => ({
+    ...jest.requireActual("../src/middleware/auth"),
+    requireAuth: (req: any, _res: any, next: any) => {
+        req.user = { id: "auth-user-id", email: "user@example.com", role: "user" };
+        next();
+    },
+}));
+
 jest.mock("../src/db/client", () => ({
     supabase: {
         from: jest.fn().mockReturnThis(),
@@ -425,6 +433,7 @@ describe("POST /api/pharmacies", () => {
             phone_number: mockPayload.phone_number,
             location: "POINT(77.2 28.56)",
             is_verified: false,
+            created_by: "auth-user-id",
         });
     });
 
