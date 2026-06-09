@@ -122,12 +122,13 @@ class CDSCOValidator:
                     f"[Validator] Synced {len(df)} CDSCO reference rows to Supabase "
                     "and will use RPC-backed matching"
                 )
+                self._load_local_reference(df, skip_global_cache=True)
                 return
             except Exception as exc:
                 self._disable_rpc_fallback(exc)
                 logger.warning("[Validator] Falling back to local CDSCO reference indexes")
 
-        self._load_local_reference(df)
+        self._load_local_reference(df, skip_global_cache=False)
 
     def _reset_reference_state(self) -> None:
         self._reference_loaded = False
@@ -169,8 +170,11 @@ class CDSCOValidator:
             if error:
                 raise RuntimeError(error)
 
-    def _load_local_reference(self, df: pd.DataFrame) -> None:
-        self._cdsco_df = df
+    def _load_local_reference(self, df: pd.DataFrame, skip_global_cache: bool = False) -> None:
+        if not skip_global_cache:
+            self._cdsco_df = df
+        else:
+            self._cdsco_df = None
 
         # Build optimized lookup structures
         for _, row in df.iterrows():
@@ -187,7 +191,7 @@ class CDSCOValidator:
             })
 
             # First letter map for partitioning search space
-            if norm_p:
+            if not skip_global_cache and norm_p:
                 first_char = norm_p[0]
                 if first_char not in self._first_letter_map:
                     self._first_letter_map[first_char] = []
@@ -292,13 +296,6 @@ class CDSCOValidator:
         norm_manufacturer = _normalize_manufacturer(manufacturer)
 
         if not norm_product:
-            return None, 0.0
-
-        if self._remote_reference_loaded:
-            rpc_match = self._find_rpc_global_match(norm_product, norm_manufacturer)
-            if rpc_match:
-                return rpc_match
-
             return None, 0.0
 
         # 1. Exact match lookup (checks if product name matches exactly)

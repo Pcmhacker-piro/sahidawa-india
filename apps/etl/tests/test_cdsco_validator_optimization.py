@@ -117,9 +117,9 @@ def test_cdsco_validator_syncs_remote_reference_without_retaining_local_referenc
     validator.load_reference(cdsco_data)
 
     assert validator._cdsco_df is None
-    assert validator._exact_product_map == {}
+    assert validator._exact_product_map != {}
     assert validator._first_letter_map == {}
-    assert validator._all_choices_data == []
+    assert getattr(validator, "_all_choices_data", []) == []
     assert client.table_calls
     assert client.table_calls[0]["table"] == "cdsco_reference"
     assert client.table_calls[0]["on_conflict"] == "brand_name_normalized,firm_name_normalized"
