@@ -5,19 +5,15 @@ process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "test-anon-key"
 
 // Mock database supabase client
 jest.mock("../src/db/client", () => {
+    const mockChain = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        range: jest.fn(),
+    };
     return {
-        supabase: {
-            from: jest.fn().mockReturnThis(),
-            select: jest.fn().mockReturnThis(),
-            order: jest.fn().mockReturnThis(),
-            range: jest.fn(),
-        },
-        getAdminClient: jest.fn(() => ({
-            from: jest.fn().mockReturnThis(),
-            select: jest.fn().mockReturnThis(),
-            order: jest.fn().mockReturnThis(),
-            range: jest.fn(),
-        })),
+        supabase: mockChain,
+        getAdminClient: jest.fn(() => mockChain),
     };
 });
 

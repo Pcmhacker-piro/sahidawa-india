@@ -3,21 +3,19 @@ import app from "../src/app";
 
 // jest.mock is hoisted before variable declarations so we define
 // the mock function inside the factory to avoid initialization errors.
-jest.mock("../src/db/client", () => ({
-    supabase: {
-        from: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn(),
-    },
-    getAdminClient: jest.fn(() => ({
+jest.mock("../src/db/client", () => {
+    const mockChain = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         range: jest.fn(),
         insert: jest.fn().mockReturnThis(),
-    })),
-}));
+    };
+    return {
+        supabase: mockChain,
+        getAdminClient: jest.fn(() => mockChain),
+    };
+});
 
 // Mock doubleCsrf to automatically bypass CSRF validation during testing
 jest.mock("csrf-csrf", () => ({

@@ -16,40 +16,32 @@ jest.mock("web-push", () => ({
     },
 }));
 
-jest.mock("../src/db/client", () => ({
-    supabase: (() => {
-        mockOrder = jest.fn();
-        mockInsert = jest.fn();
-        mockDeleteEq = jest.fn();
-        mockSelect = jest.fn(() => ({ order: mockOrder }));
-        mockDelete = jest.fn(() => ({ eq: mockDeleteEq }));
-        mockFrom = jest.fn((table: string) => {
-            if (table === "push_notification_events") {
-                return { insert: mockInsert };
-            }
-
-            return {
-                select: mockSelect,
-                delete: mockDelete,
-            };
-        });
+jest.mock("../src/db/client", () => {
+    mockOrder = jest.fn();
+    mockInsert = jest.fn();
+    mockDeleteEq = jest.fn();
+    mockSelect = jest.fn(() => ({ order: mockOrder }));
+    mockDelete = jest.fn(() => ({ eq: mockDeleteEq }));
+    mockFrom = jest.fn((table: string) => {
+        if (table === "push_notification_events") {
+            return { insert: mockInsert };
+        }
 
         return {
-            from: mockFrom,
+            select: mockSelect,
+            delete: mockDelete,
         };
-    })(),
-    getAdminClient: jest.fn(() => ({
-        from: jest.fn((table: string) => {
-            if (table === "push_notification_events") {
-                return { insert: jest.fn() };
-            }
-            return {
-                select: jest.fn(() => ({ order: jest.fn() })),
-                delete: jest.fn(() => ({ eq: jest.fn() })),
-            };
-        }),
-    })),
-}));
+    });
+
+    const mockChain = {
+        from: mockFrom,
+    };
+
+    return {
+        supabase: mockChain,
+        getAdminClient: jest.fn(() => mockChain),
+    };
+});
 
 const mockedWebPush = webPush as jest.Mocked<typeof webPush>;
 

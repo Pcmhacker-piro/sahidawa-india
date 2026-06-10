@@ -6,18 +6,17 @@ delete process.env.GEMINI_API_KEY;
 
 (global as any).WebSocket = (global as any).WebSocket || class {};
 
-jest.mock("../src/db/client", () => ({
-    supabase: {
+jest.mock("../src/db/client", () => {
+    const mockChain = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
         rpc: jest.fn(),
-    },
-    getAdminClient: jest.fn(() => ({
-        from: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        rpc: jest.fn(),
-    })),
-}));
+    };
+    return {
+        supabase: mockChain,
+        getAdminClient: jest.fn(() => mockChain),
+    };
+});
 
 import request from "supertest";
 import app from "../src/app";

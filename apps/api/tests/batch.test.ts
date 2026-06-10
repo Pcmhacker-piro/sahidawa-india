@@ -2,24 +2,18 @@ import request from "supertest";
 import app from "../src/app";
 
 jest.mock("../src/db/client", () => {
-    const mock = {
+    const mockChain = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         maybeSingle: jest.fn(),
+        insert: jest.fn().mockReturnThis(),
     };
 
     return {
-        supabase: mock,
-        getAdminClient: jest.fn(() => ({
-            from: jest.fn().mockReturnThis(),
-            select: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockReturnThis(),
-            limit: jest.fn().mockReturnThis(),
-            maybeSingle: jest.fn(),
-            insert: jest.fn().mockReturnThis(),
-        })),
+        supabase: mockChain,
+        getAdminClient: jest.fn(() => mockChain),
     };
 });
 
