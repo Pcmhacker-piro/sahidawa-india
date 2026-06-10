@@ -4,6 +4,26 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+jest.mock("../lib/supabase", () => ({
+    supabase: {
+        from: jest.fn(() => ({
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            order: jest.fn().mockReturnThis(),
+            insert: jest.fn().mockResolvedValue({ data: null, error: null }),
+            update: jest.fn().mockResolvedValue({ data: null, error: null }),
+            delete: jest.fn().mockReturnThis(),
+        })),
+        auth: {
+            getSession: jest.fn().mockResolvedValue({
+                data: { session: null },
+                error: null,
+            }),
+        },
+    },
+}));
+
 import ExpiryTrackerPage from "../app/[locale]/expiry-tracker/page";
 
 jest.mock("next-intl", () => ({
