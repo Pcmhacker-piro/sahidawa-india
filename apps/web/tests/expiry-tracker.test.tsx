@@ -10,11 +10,16 @@ jest.mock("../lib/supabase", () => ({
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
             single: jest.fn().mockResolvedValue({ data: null, error: null }),
+            order: jest.fn().mockReturnThis(),
             insert: jest.fn().mockResolvedValue({ data: null, error: null }),
             update: jest.fn().mockResolvedValue({ data: null, error: null }),
-            delete: jest.fn().mockResolvedValue({ data: null, error: null }),
+            delete: jest.fn().mockReturnThis(),
         })),
         auth: {
+            getSession: jest.fn().mockResolvedValue({
+                data: { session: null },
+                error: null,
+            }),
             getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
         },
     },
