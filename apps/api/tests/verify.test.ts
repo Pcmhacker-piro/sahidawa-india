@@ -13,7 +13,19 @@ jest.mock("../src/db/client", () => {
         insert: jest.fn().mockReturnThis(),
     };
 
-    return { supabase: mock };
+    return {
+        supabase: mock,
+        getAdminClient: jest.fn(() => ({
+            from: jest.fn().mockReturnThis(),
+            select: jest.fn().mockReturnThis(),
+            ilike: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn(),
+            eq: jest.fn().mockReturnThis(),
+            gte: jest.fn().mockReturnThis(),
+            insert: jest.fn().mockReturnThis(),
+        })),
+    };
 });
 
 import { supabase } from "../src/db/client";

@@ -13,6 +13,15 @@ jest.mock("../src/db/client", () => ({
         order: jest.fn().mockReturnThis(),
         single: jest.fn(),
     },
+    getAdminClient: jest.fn(() => ({
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        insert: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        single: jest.fn(),
+    })),
 }));
 
 jest.mock("../src/middleware/auth", () => {
@@ -57,7 +66,7 @@ jest.mock("../src/middleware/auth", () => {
 
 import request from "supertest";
 import app from "../src/app";
-import { supabase } from "../src/db/client";
+import { supabase, getAdminClient } from "../src/db/client";
 
 const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
 

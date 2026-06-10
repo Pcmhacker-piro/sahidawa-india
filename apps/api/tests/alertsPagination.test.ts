@@ -10,6 +10,13 @@ jest.mock("../src/db/client", () => ({
         order: jest.fn().mockReturnThis(),
         range: jest.fn(),
     },
+    getAdminClient: jest.fn(() => ({
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        range: jest.fn(),
+        insert: jest.fn().mockReturnThis(),
+    })),
 }));
 
 // Mock doubleCsrf to automatically bypass CSRF validation during testing

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import supabase from "../db/supabase";
+import { supabase } from "../db/client";
 import logger from "../utils/logger";
 import {
     assessUrgency,

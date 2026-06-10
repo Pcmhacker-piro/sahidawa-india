@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import { logAdminAction } from "../services/audit.service";
 import { AuthenticatedRequest } from "../middleware/auth";
 
@@ -44,7 +44,8 @@ export const getPendingReports = async (
         const { page, limit } = parsed.data;
         const offset = (page - 1) * limit;
 
-        const { data, error, count } = await supabase
+        const adminDb = getAdminClient();
+        const { data, error, count } = await adminDb
             .from("counterfeit_reports")
             .select("*, medicines(brand_name, generic_name)", {
                 count: "exact",
@@ -88,7 +89,8 @@ export const updateReportStatus = async (
 
         const { status } = parsed.data;
 
-        const { data, error } = await supabase
+        const adminDb = getAdminClient();
+        const { data, error } = await adminDb
             .from("counterfeit_reports")
             .update({ status })
             .eq("id", id)
@@ -115,7 +117,7 @@ export const updateReportStatus = async (
 
         // --- DISTRICT ALERT LOGIC ---
         if (status === "verified_fake" && data.district) {
-            const { count } = await supabase
+            const { count } = await adminDb
                 .from("counterfeit_reports")
                 .select("*", { count: "exact", head: true })
                 .eq("district", data.district)
@@ -124,13 +126,7 @@ export const updateReportStatus = async (
             if (count && count >= 3) {
                 const alertLevel = count >= 10 ? "high" : "medium";
 
-                // Replace the previous check-then-insert pattern with a single upsert.
-                // The old pattern had a TOCTOU race window: two concurrent admin actions
-                // on the same district could both pass the existingAlert check and
-                // produce duplicate rows. The upsert with onConflict is atomic and
-                // eliminates the window. The conflict target must match a unique
-                // constraint on (district) in the district_alerts table.
-                await supabase.from("district_alerts").upsert(
+                await adminDb.from("district_alerts").upsert(
                     {
                         district: data.district,
                         medicine_name: data.reported_brand_name,
@@ -163,7 +159,8 @@ export const getAllMedicines = async (req: AuthenticatedRequest, res: Response):
         const { page, limit } = parsed.data;
         const offset = (page - 1) * limit;
 
-        const { data, error, count } = await supabase
+        const adminDb = getAdminClient();
+        const { data, error, count } = await adminDb
             .from("medicines")
             .select("*", { count: "exact" })
             .range(offset, offset + limit - 1);
@@ -197,7 +194,8 @@ export const createMedicine = async (req: AuthenticatedRequest, res: Response): 
             return;
         }
 
-        const { data, error } = await supabase
+        const adminDb = getAdminClient();
+        const { data, error } = await adminDb
             .from("medicines")
             .insert(parsed.data)
             .select()
@@ -233,7 +231,8 @@ export const getAuditLogs = async (req: AuthenticatedRequest, res: Response): Pr
         const { page, limit } = parsed.data;
         const offset = (page - 1) * limit;
 
-        const { data, error, count } = await supabase
+        const adminDb = getAdminClient();
+        const { data, error, count } = await adminDb
             .from("audit_logs")
             .select("*", { count: "exact" })
             .order("created_at", { ascending: false })

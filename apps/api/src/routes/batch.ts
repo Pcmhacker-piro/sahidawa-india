@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import { batchLimiter } from "../middleware/rateLimit";
 import logger from "../utils/logger";
 
@@ -331,7 +331,8 @@ router.post("/report", batchLimiter, async (req: Request, res: Response) => {
             medicine_id = medicineMatch.id;
         }
 
-        const { error } = await supabase.from("counterfeit_reports").insert({
+        const adminDb = getAdminClient();
+        const { error } = await adminDb.from("counterfeit_reports").insert({
             medicine_id,
             scanned_barcode: batchNumber,
             description,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import supabase from "../db/supabase";
+import { supabase } from "../db/client";
 import logger from "../utils/logger";
 import { escapeIlike } from "../utils/db";
 

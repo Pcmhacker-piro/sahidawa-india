@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import { z } from "zod";
 import { triggerRecallAlert } from "../services/notifications";
 import { validateMedicineStatus, getValidStatusList } from "../validators/medicine.validator";
@@ -121,7 +121,8 @@ alertsRouter.post("/ingest", async (req: Request, res: Response) => {
 
     try {
         // 2. Insert alerts into drug_alerts table
-        const { data: insertedAlerts, error: insertError } = await supabase
+        const adminDb = getAdminClient();
+        const { data: insertedAlerts, error: insertError } = await adminDb
             .from("drug_alerts")
             .insert(validatedAlerts)
             .select();
@@ -143,7 +144,7 @@ alertsRouter.post("/ingest", async (req: Request, res: Response) => {
 
         const updatePromises = validatedAlerts.map((alert) => {
             if (alert.batch_number) {
-                let q = supabase
+                let q = adminDb
                     .from("medicines")
                     .update({ status: medicineStatus, is_counterfeit_alert: true })
                     .eq("batch_number", alert.batch_number);

@@ -38,6 +38,17 @@ jest.mock("../src/db/client", () => ({
             from: mockFrom,
         };
     })(),
+    getAdminClient: jest.fn(() => ({
+        from: jest.fn((table: string) => {
+            if (table === "push_notification_events") {
+                return { insert: jest.fn() };
+            }
+            return {
+                select: jest.fn(() => ({ order: jest.fn() })),
+                delete: jest.fn(() => ({ eq: jest.fn() })),
+            };
+        }),
+    })),
 }));
 
 const mockedWebPush = webPush as jest.Mocked<typeof webPush>;

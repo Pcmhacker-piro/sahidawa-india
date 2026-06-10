@@ -12,6 +12,12 @@ jest.mock("../src/db/client", () => {
             order: jest.fn().mockReturnThis(),
             range: jest.fn(),
         },
+        getAdminClient: jest.fn(() => ({
+            from: jest.fn().mockReturnThis(),
+            select: jest.fn().mockReturnThis(),
+            order: jest.fn().mockReturnThis(),
+            range: jest.fn(),
+        })),
     };
 });
 
@@ -33,7 +39,7 @@ jest.mock("../src/middleware/auth", () => {
 
 import request from "supertest";
 import app from "../src/app";
-import { supabase } from "../src/db/client";
+import { supabase, getAdminClient } from "../src/db/client";
 
 const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
 

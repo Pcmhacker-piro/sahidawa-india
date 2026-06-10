@@ -12,19 +12,16 @@ jest.mock("../src/db/client", () => ({
         select: jest.fn().mockReturnThis(),
         rpc: jest.fn(),
     },
-}));
-
-jest.mock("../src/db/supabase", () => ({
-    __esModule: true,
-    default: {
+    getAdminClient: jest.fn(() => ({
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
         rpc: jest.fn(),
-        from: jest.fn(),
-    },
+    })),
 }));
 
 import request from "supertest";
 import app from "../src/app";
-import supabase from "../src/db/supabase";
+import { supabase } from "../src/db/client";
 import {
     assessUrgency,
     buildMedicineMonograph,

@@ -1,6 +1,6 @@
 import { Router, Response } from "express";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import { AuthenticatedRequest, optionalAuth, requireAuth, requireRole } from "../middleware/auth";
 
 const reportsRouter = Router();
@@ -80,7 +80,8 @@ reportsRouter.post("/", optionalAuth, async (req: AuthenticatedRequest, res: Res
     const data = parsed.data;
 
     try {
-        const { data: report, error } = await supabase
+        const adminDb = getAdminClient();
+        const { data: report, error } = await adminDb
             .from("counterfeit_reports")
             .insert({
                 reported_brand_name: data.medicineName,
@@ -190,7 +191,8 @@ reportsRouter.patch(
                 return;
             }
 
-            const { data, error } = await supabase
+            const adminDb = getAdminClient();
+            const { data, error } = await adminDb
                 .from("counterfeit_reports")
                 .update({ status })
                 .eq("id", req.params.id)

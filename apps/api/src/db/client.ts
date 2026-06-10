@@ -2,8 +2,6 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import logger from "../utils/logger";
 import { CONNECTION_TIMEOUT_MS, MAX_RETRIES, RETRY_DELAY_MS, fetchWithRetry } from "./fetchUtils";
 
-// ── Environment resolution ────────────────────────────────────────────────────
-
 if (!process.env.SUPABASE_URL) {
     throw new Error(
         "Missing required environment variable: SUPABASE_URL. " +
@@ -11,28 +9,17 @@ if (!process.env.SUPABASE_URL) {
     );
 }
 
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+if (!process.env.SUPABASE_ANON_KEY) {
     throw new Error(
-        "Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY. " +
-            "The API backend requires the service_role key to bypass RLS for server-side writes. " +
-            "Do not use SUPABASE_ANON_KEY here — it is subject to RLS and will silently drop writes."
+        "Missing required environment variable: SUPABASE_ANON_KEY. " +
+            "The API backend requires the anon key for standard database operations."
     );
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// ── Connection pool config ────────────────────────────────────────────────────
-// Supabase JS uses HTTP fetch under the hood (not raw pg sockets).
-// We simulate pool-like behaviour by:
-//   - Capping concurrent requests via a semaphore
-//   - Enforcing a hard per-request timeout (connectionTimeoutMillis equivalent)
-//   - Retrying transient network errors automatically
-
-const MAX_CONNECTIONS = 20; // max concurrent DB requests
-const IDLE_TIMEOUT_MS = 30_000; // 30 s — matches pg idleTimeoutMillis
-
-// ── Semaphore (concurrency limiter) ──────────────────────────────────────────
+const MAX_CONNECTIONS = 20;
+const IDLE_TIMEOUT_MS = 30_000;
 
 class ConnectionPool {
     private active = 0;
@@ -48,7 +35,6 @@ class ConnectionPool {
             this.active++;
             return;
         }
-        // Queue the request with a timeout
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 const idx = this.queue.indexOf(resolver);
@@ -83,8 +69,6 @@ class ConnectionPool {
 
 export const pool = new ConnectionPool(MAX_CONNECTIONS);
 
-// ── Pool-aware fetch ──────────────────────────────────────────────────────────
-
 async function pooledFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     await pool.acquire();
     try {
@@ -94,19 +78,38 @@ async function pooledFetch(input: RequestInfo | URL, init?: RequestInit): Promis
     }
 }
 
-// ── Supabase client ───────────────────────────────────────────────────────────
-
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey, {
+export const supabase: SupabaseClient = createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY, {
     global: {
         fetch: pooledFetch as typeof fetch,
     },
     auth: {
-        persistSession: false, // server-side — no browser storage
+        persistSession: false,
         autoRefreshToken: false,
     },
 });
 
-// ── Graceful shutdown ─────────────────────────────────────────────────────────
+let adminClientInstance: SupabaseClient | null = null;
+
+export function getAdminClient(): SupabaseClient {
+    if (!adminClientInstance) {
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            throw new Error(
+                "Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY. " +
+                    "The admin client requires the service_role key for privileged operations."
+            );
+        }
+        adminClientInstance = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+            global: {
+                fetch: pooledFetch as typeof fetch,
+            },
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+            },
+        });
+    }
+    return adminClientInstance;
+}
 
 function gracefulShutdown(signal: string) {
     logger.warn(
@@ -121,7 +124,6 @@ function gracefulShutdown(signal: string) {
         }
     }, 200);
 
-    // Force exit after 10 s if connections don't drain
     setTimeout(() => {
         clearInterval(check);
         logger.error("Forced shutdown — connections did not drain in time.");
@@ -132,7 +134,6 @@ function gracefulShutdown(signal: string) {
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-// Log pool exhaustion warnings
 setInterval(() => {
     const { active, queued, max } = pool.stats;
     if (queued > 0) {

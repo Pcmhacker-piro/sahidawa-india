@@ -12,11 +12,20 @@ jest.mock("../src/db/client", () => ({
         maybeSingle: jest.fn(),
         rpc: jest.fn(),
     },
+    getAdminClient: jest.fn(() => ({
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        ilike: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn(),
+        rpc: jest.fn(),
+        insert: jest.fn().mockReturnThis(),
+    })),
 }));
 
 import request from "supertest";
 import app from "../src/app";
-import { supabase } from "../src/db/client";
+import { supabase, getAdminClient } from "../src/db/client";
 
 const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
 

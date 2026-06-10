@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import logger from "../utils/logger";
 
 const router = Router();
@@ -115,7 +115,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        const { data: pharmacy, error: insertError } = await supabase
+        const adminDb = getAdminClient();
+        const { data: pharmacy, error: insertError } = await adminDb
             .from("pharmacies")
             .insert({
                 name: data.name,

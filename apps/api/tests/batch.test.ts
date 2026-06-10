@@ -10,7 +10,17 @@ jest.mock("../src/db/client", () => {
         maybeSingle: jest.fn(),
     };
 
-    return { supabase: mock };
+    return {
+        supabase: mock,
+        getAdminClient: jest.fn(() => ({
+            from: jest.fn().mockReturnThis(),
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            maybeSingle: jest.fn(),
+            insert: jest.fn().mockReturnThis(),
+        })),
+    };
 });
 
 import { supabase } from "../src/db/client";

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import { verifyLimiter } from "../middleware/rateLimit";
 import { optionalAuth } from "../middleware/auth";
 import logger from "../utils/logger";
@@ -257,7 +257,8 @@ router.post(
                 );
             }
 
-            const { error: insertError } = await supabase.from("scan_history").insert([
+            const adminDb = getAdminClient();
+            const { error: insertError } = await adminDb.from("scan_history").insert([
                 {
                     batch_number: data.batch_number,
                     medicine_id: data.id,

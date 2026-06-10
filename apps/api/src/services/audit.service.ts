@@ -1,4 +1,4 @@
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import logger from "../utils/logger";
 
 export const logAdminAction = async (
@@ -8,7 +8,8 @@ export const logAdminAction = async (
     targetId: string,
     details: Record<string, unknown>
 ) => {
-    const { error } = await supabase.from("audit_logs").insert({
+    const adminDb = getAdminClient();
+    const { error } = await adminDb.from("audit_logs").insert({
         admin_id: adminId,
         action,
         target_type: targetType,

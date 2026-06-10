@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import webPush, { PushSubscription } from "web-push";
 import { z } from "zod";
-import { supabase } from "../db/client";
+import { supabase, getAdminClient } from "../db/client";
 import logger from "../utils/logger";
 
 export const pushSubscriptionSchema = z.object({
@@ -110,7 +110,8 @@ export async function savePushSubscription(subscription: PushSubscription, userI
     };
     memorySubscriptions.set(subscription.endpoint, stored);
 
-    const { error } = await supabase.from("push_subscriptions").upsert(
+    const adminDb = getAdminClient();
+    const { error } = await adminDb.from("push_subscriptions").upsert(
         {
             endpoint: subscription.endpoint,
             subscription,
@@ -125,11 +126,13 @@ export async function savePushSubscription(subscription: PushSubscription, userI
 
 export async function removePushSubscription(endpoint: string) {
     memorySubscriptions.delete(endpoint);
-    await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
+    const adminDb = getAdminClient();
+    await adminDb.from("push_subscriptions").delete().eq("endpoint", endpoint);
 }
 
 async function listPersistedSubscriptions(): Promise<StoredSubscription[]> {
-    const { data, error } = await supabase
+    const adminDb = getAdminClient();
+    const { data, error } = await adminDb
         .from("push_subscriptions")
         .select("endpoint, subscription, created_at, user_id")
         .order("created_at", { ascending: false });
@@ -313,7 +316,8 @@ export async function recordPushDeliveryEvents(events: PushDeliveryEvent[]) {
     }));
 
     try {
-        const { error } = await supabase.from("push_notification_events").insert(rows);
+        const adminDb = getAdminClient();
+        const { error } = await adminDb.from("push_notification_events").insert(rows);
 
         if (error) {
             logger.warn({ message: "Failed to persist push notification analytics", error });
