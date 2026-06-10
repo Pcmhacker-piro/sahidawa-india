@@ -23,7 +23,7 @@ jobs:
             });
             
             const changedFilesCount = files.data.length;
-            const threshold = 15; // Set the threshold for files changed
+            const threshold = 25; // Set the threshold for files changed
             
             if (changedFilesCount > threshold) {
               const warningMessage = `
@@ -41,23 +41,28 @@ jobs:
               *(If this is a legitimate large feature like a major refactor or i18n update, you can ignore this warning).*
               `;
               
-              // Only comment if we haven't already commented on this PR
-              const comments = await github.rest.issues.listComments({
-                owner,
-                repo,
-                issue_number: number
-              });
-              
-              const hasWarningComment = comments.data.some(comment => 
-                comment.body.includes('WARNING: Large Pull Request Detected!')
-              );
-              
-              if (!hasWarningComment) {
-                await github.rest.issues.createComment({
+              try {
+                // Only comment if we haven't already commented on this PR
+                const comments = await github.rest.issues.listComments({
                   owner,
                   repo,
-                  issue_number: number,
-                  body: warningMessage
+                  issue_number: number
                 });
+                
+                const hasWarningComment = comments.data.some(comment => 
+                  comment.body.includes('WARNING: Large Pull Request Detected!')
+                );
+                
+                if (!hasWarningComment) {
+                  await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: number,
+                    body: warningMessage
+                  });
+                }
+              } catch {
+                // Commenting may fail on fork PRs due to permissions — not a blocker
+                console.log('Skipping PR comment (permission issue or fork).');
               }
             }
