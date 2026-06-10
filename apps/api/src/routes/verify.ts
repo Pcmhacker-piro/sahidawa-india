@@ -44,10 +44,16 @@ const router = Router();
 
 function isAllowedOrigin(req: Request): boolean {
     const origin = req.headers.origin;
+    if (origin) return ALLOWED_ORIGINS.includes(origin);
     const referer = req.headers.referer;
-    const source = origin || (referer ? new URL(referer).origin : null);
-    if (!source) return true; // Allow requests with no Origin/Referer header
-    return ALLOWED_ORIGINS.includes(source);
+    if (referer) {
+        try {
+            return ALLOWED_ORIGINS.includes(new URL(referer).origin);
+        } catch {
+            return false;
+        }
+    }
+    return true;
 }
 
 const verifySchema = z.object({
