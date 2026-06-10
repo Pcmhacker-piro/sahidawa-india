@@ -19,6 +19,7 @@ import { Link, usePathname } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
+import NotificationCenter from "./NotificationCenter";
 import type { FC } from "react";
 
 const desktopNavLinkClassName =
@@ -211,6 +212,9 @@ export default function Navbar() {
                                 Health Companion
                             </div>
                         </div>
+
+                        {/* Notification Center */}
+                        <NotificationCenter />
 
                         {/* Desktop Only Utilities Layout */}
                         <div className="hidden items-center gap-2 sm:flex">
