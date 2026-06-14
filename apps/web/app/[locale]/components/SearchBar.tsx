@@ -109,12 +109,7 @@ export default function SearchBar({ dark = false, onSearchChange }: SearchBarPro
         localStorage.removeItem("sahidawa_search_history");
     }, []);
 
-    const {
-        state: voiceState,
-        startRecording,
-        cancelRecording,
-        supportsRecording,
-    } = useVoiceSearch();
+    const { state: voiceState, startRecording, supportsRecording } = useVoiceSearch();
 
     // ── Refs ───────────────────────────────────────────────────────────────────
     const containerRef = useRef<HTMLDivElement>(null);
