@@ -14,6 +14,11 @@ jest.mock("../src/db/client", () => ({
         order: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         single: jest.fn(),
+        or: jest.fn().mockReturnThis(),
+        in: jest.fn().mockReturnThis(),
+        ilike: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn(),
+        rpc: jest.fn(),
     },
 }));
 
@@ -28,6 +33,15 @@ jest.mock("../src/services/reportValidation.service", () => ({
     computeReportHash: jest
         .fn()
         .mockReturnValue("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"),
+    anonymizeIp: jest.fn().mockReturnValue("anonymized-ip"),
+}));
+
+jest.mock("../src/middleware/rateLimit", () => ({
+    reportLimiter: (_req: any, _res: any, next: any) => next(),
+    verifyLimiter: (_req: any, _res: any, next: any) => next(),
+    batchLimiter: (_req: any, _res: any, next: any) => next(),
+    limiter: (_req: any, _res: any, next: any) => next(),
+    lasaLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
 jest.mock("../src/middleware/auth", () => {
@@ -73,6 +87,26 @@ jest.mock("../src/middleware/auth", () => {
 import request from "supertest";
 import app from "../src/app";
 import { supabase } from "../src/db/client";
+
+function chainableMock(resolvedValue?: any) {
+    const chain: Record<string, jest.Mock> = {};
+    const obj = new Proxy(
+        {},
+        {
+            get(_, prop: string) {
+                if (prop === "then") return undefined;
+                if (!chain[prop]) {
+                    chain[prop] = jest.fn().mockReturnThis();
+                }
+                return chain[prop];
+            },
+        }
+    );
+    const singleFn = jest.fn().mockResolvedValue(resolvedValue ?? { data: null, error: null });
+    chain.single = singleFn;
+    (obj as any).single = singleFn;
+    return obj;
+}
 
 const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
 
@@ -416,14 +450,15 @@ describe("Reports API Routes", () => {
                 created_at: "2026-06-01T00:00:00Z",
             };
 
-            mockedSupabase.select = jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValueOnce({
-                        data: { id: "report-id-123" },
-                        error: null,
-                    }),
+            const selectChain: any = {
+                eq: jest.fn().mockReturnThis(),
+                single: jest.fn().mockResolvedValueOnce({
+                    data: { id: "report-id-123" },
+                    error: null,
                 }),
-            });
+            };
+
+            mockedSupabase.select = jest.fn().mockReturnValue(selectChain);
 
             mockedSupabase.update = jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
@@ -456,14 +491,15 @@ describe("Reports API Routes", () => {
                 created_at: "2026-06-01T00:00:00Z",
             };
 
-            mockedSupabase.select = jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValueOnce({
-                        data: { id: "report-id-123" },
-                        error: null,
-                    }),
+            const selectChain: any = {
+                eq: jest.fn().mockReturnThis(),
+                single: jest.fn().mockResolvedValueOnce({
+                    data: { id: "report-id-123" },
+                    error: null,
                 }),
-            });
+            };
+
+            mockedSupabase.select = jest.fn().mockReturnValue(selectChain);
 
             mockedSupabase.update = jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
@@ -490,14 +526,15 @@ describe("Reports API Routes", () => {
             const validStatuses = ["pending", "verified_fake", "false_alarm"];
 
             for (const status of validStatuses) {
-                mockedSupabase.select = jest.fn().mockReturnValue({
-                    eq: jest.fn().mockReturnValue({
-                        single: jest.fn().mockResolvedValueOnce({
-                            data: { id: "report-id" },
-                            error: null,
-                        }),
+                const selectChain: any = {
+                    eq: jest.fn().mockReturnThis(),
+                    single: jest.fn().mockResolvedValueOnce({
+                        data: { id: "report-id" },
+                        error: null,
                     }),
-                });
+                };
+
+                mockedSupabase.select = jest.fn().mockReturnValue(selectChain);
 
                 mockedSupabase.update = jest.fn().mockReturnValue({
                     eq: jest.fn().mockReturnValue({

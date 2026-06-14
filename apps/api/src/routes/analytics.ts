@@ -4,6 +4,8 @@ import { supabase } from "../db/client";
 import logger from "../utils/logger";
 import { limiter } from "../middleware/rateLimit";
 
+import { requireAuth } from "../middleware/auth";
+
 const router = Router();
 const QuerySchema = z.object({
     days: z.coerce.number().int().min(1).max(365).default(30),
@@ -106,6 +108,8 @@ router.get("/heatmap", limiter, async (req: Request, res: Response) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+router.get("/push-notifications", requireAuth, getPushNotificationAnalytics);
 
 export async function getPushNotificationAnalytics(req: Request, res: Response) {
     try {
