@@ -29,6 +29,13 @@ jest.mock("../app/[locale]/map/PharmacyMap", () => ({
     default: () => <div data-testid="mock-pharmacy-map">Mock map</div>,
 }));
 
+jest.mock("next-intl", () => ({
+    useTranslations: () => (key: string) => key,
+    useFormatter: () => ({
+        dateTime: (date: Date) => date.toISOString(),
+    }),
+}));
+
 function countOccurrences(markup: string, text: string): number {
     return markup.split(text).length - 1;
 }
