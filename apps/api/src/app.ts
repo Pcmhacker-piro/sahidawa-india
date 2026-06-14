@@ -61,6 +61,7 @@ import alertsRouter from "./routes/alerts";
 import lasaRouter from "./routes/lasa";
 import mlRouter from "./routes/ml";
 import triageRouter from "./routes/triage";
+import eligibilityRouter from "./routes/eligibility";
 import { supabase } from "./db/client";
 import { createCorsOptions } from "./config/cors";
 import { errorHandler } from "./middleware/errorHandler";
@@ -220,6 +221,7 @@ app.use("/api/ml", mlRouter);
 app.use("/api/triage", triageRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/schedules", medicineSchedulesRouter);
+app.use("/api/v1/scheme-eligibility", eligibilityRouter);
 
 // ── Swagger UI Documentation (/api/docs) ──────────────────────────────────
 app.use(
