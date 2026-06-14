@@ -11,6 +11,15 @@ jest.mock("lucide-react", () => ({
     X: () => <span>X</span>,
 }));
 
+jest.mock("@/hooks/useVoiceSearch", () => ({
+    useVoiceSearch: () => ({
+        state: { status: "idle" },
+        startRecording: jest.fn().mockRejectedValue(new Error("not supported")),
+        cancelRecording: jest.fn(),
+        supportsRecording: false,
+    }),
+}));
+
 describe("MedicineSearchSelect", () => {
     const mockMedicine = {
         id: "1",
@@ -63,7 +72,7 @@ describe("MedicineSearchSelect", () => {
     });
 
     test("clear button calls onChange with null", async () => {
-        const user = userEvent.setup();
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
         const onChange = jest.fn();
 
@@ -109,7 +118,9 @@ describe("MedicineSearchSelect", () => {
             expect(onSearch).toHaveBeenCalled();
         });
 
-        expect(screen.getByText(/crocin/i)).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText(/crocin/i)).toBeInTheDocument();
+        });
 
         expect(screen.getByText(/gsk/i)).toBeInTheDocument();
     });
@@ -163,7 +174,7 @@ describe("MedicineSearchSelect", () => {
     });
 
     test("clear history removes history items", async () => {
-        const user = userEvent.setup();
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
         localStorage.setItem(
             "sahidawa_search_history",
